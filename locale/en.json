@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "No-Auth Direct Access",
+    "description": "Serves the DSH Web GUI without the process launch token and adds a plugin-owned LAN listener with a client IP/CIDR whitelist. A non-empty whitelist is the only entry; clients outside it are refused even with a valid token."
+  }
+}

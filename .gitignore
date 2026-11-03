@@ -1,0 +1,7 @@
+# Local development only; not part of the published plugin bundle.
+test/
+node_modules/
+*.log
+*.tmp
+.DS_Store
+settings.json

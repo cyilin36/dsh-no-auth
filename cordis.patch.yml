@@ -1,0 +1,36 @@
+# Bundle patch layer: one Host-only row that relaxes the Web GUI's launch-token
+# authentication and (optionally) exposes the loopback GUI to the LAN through a
+# plugin-owned listener with a client IP/CIDR whitelist.
+#
+# The DSH listener itself is a launch decision (`dsh web --host <address>`);
+# this plugin never rebinds it. `lanProxy` is the plugin-owned LAN entry:
+#   LAN client -> <lanProxy.host>:<lanProxy.port> -> DSH listener (loopback)
+# and `allowedClients` is enforced there against the real client address.
+#
+# `allowedClients` semantics:
+#   []                      -> no IP restriction (0.0.0.0/0): every reachable
+#                              client is admitted
+#   ["192.168.1.0/24", ...] -> the list is the ONLY entry; outside clients get
+#                              403 on the page, /api, the WebSocket, and /connect
+# Entries accept single IPv4/IPv6 addresses and CIDR ranges. A loopback DSH
+# listener ignores the list for the token bypass; the LAN listener always uses
+# it. Invalid entries fail closed (nothing is enabled).
+#
+# `lanProxy` is disabled by default: enable it in Settings -> 免 Token 直连,
+# or set `enabled: true` plus one concrete local interface address here.
+# The LAN listener serves plain HTTP; keep it on a trusted network or put TLS
+# in front of it. `patchClientBundle` rewrites the Connection client bundle so a
+# LAN page keeps `isLoopback: true`; a `crypto.randomUUID` polyfill is injected
+# into plain-HTTP pages automatically.
+- insert:
+    - id: dsh-no-auth
+      name: dsh-no-auth
+      config:
+        enabled: true
+        keepTokenInUrl: false
+        allowedClients: []
+        lanProxy:
+          enabled: false
+          host: ""
+          port: 3080
+          patchClientBundle: true
